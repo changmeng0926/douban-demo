@@ -119,7 +119,7 @@ export default {
             console.log(subjects)
             // 对评分进行处理
             subjects.forEach(item => {
-              // 星星(发亮)的数量是评分向上取整
+              // 星星(发亮亮)的数量是评分向上取整
               item.starNum = Math.ceil(item.rating.average / 2)
             })
             this.theatherMovies = subjects
