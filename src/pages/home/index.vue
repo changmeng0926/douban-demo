@@ -9,15 +9,55 @@
       <button>打开豆瓣App</button>
     </div>
 
-    <!-- 影院热映 -->
+    <!-- 优化后的代码 -->
     <div class="content">
+      <div class="item"
+           v-for="data in dataMovies"
+           :key="data.name">
+        <p class="title">
+          <span>{{data.name}}</span>
+          <span class="more">更多</span>
+        </p>
+
+        <!-- 横向滚动 -->
+        <scroll-view class="scroll-view_H"
+                     scroll-x="true"
+                     bindscroll="scroll"
+                     style="width: 100%">
+          <view v-for="(item , i) in data.list"
+                :key="item.id"
+                class="scroll-view-item_H demo-text-1">
+            <img :src="item.images.large"
+                 alt="">
+            <p>{{item.title}}</p>
+            <div class="rating">
+              <div class="stars"
+                   v-show="item.rating.average">
+                <img v-for="(item2 , index2) in item.starNum"
+                     :key="index2"
+                     src="../../../static/images/star.svg"
+                     alt="">
+                <img v-for="(item2 , index2) in (5-item.starNum)"
+                     :key="index2"
+                     src="../../../static/images/unstar.svg"
+                     alt="">
+              </div>
+              <span>{{item.rating.average?item.rating.average:"暂无评论"}}</span>
+            </div>
+          </view>
+        </scroll-view>
+      </div>
+    </div>
+
+    <!-- 影院热映 -->
+    <!-- <div class="content">
       <p class="title">
         <span>影院热映</span>
         <span class="more">更多</span>
-      </p>
+      </p> -->
 
-      <!-- 横向滚动 -->
-      <scroll-view class="scroll-view_H"
+    <!-- 横向滚动 -->
+    <!-- <scroll-view class="scroll-view_H"
                    scroll-x="true"
                    bindscroll="scroll"
                    style="width: 100%">
@@ -43,18 +83,17 @@
           </div>
         </view>
       </scroll-view>
-
-    </div>
+    </div> -->
 
     <!-- top250 -->
-    <div class="content">
+    <!-- <div class="content">
       <p class="title">
         <span>top250</span>
         <span class="more">更多</span>
-      </p>
+      </p> -->
 
-      <!-- 横向滚动 -->
-      <scroll-view class="scroll-view_H"
+    <!-- 横向滚动 -->
+    <!-- <scroll-view class="scroll-view_H"
                    scroll-x="true"
                    bindscroll="scroll"
                    style="width: 100%">
@@ -80,8 +119,7 @@
           </div>
         </view>
       </scroll-view>
-
-    </div>
+    </div> -->
 
   </div>
 </template>
@@ -91,25 +129,40 @@ export default {
 
   data () {
     return {
-      // 影院热映
-      theatherMovies: [],
-      // top250
-      top250Movies: []
+      // // 影院热映
+      // theatherMovies: [],
+      // // top250
+      // top250Movies: []
+      dataMovies: [
+        {
+          name: '影院热映',
+          param: 'in_theaters',
+          list: [] // 用来存获取的数据
+
+        }, {
+          name: 'top250',
+          param: 'top250',
+          list: []
+        }
+      ]
 
     }
   },
 
   onLoad () {
     // 发送请求
-    this.getTheaterMovies()
-    this.getTop()
+    // this.getTheaterMovies()
+    // this.getTop()
+    this.dataMovies.forEach(item => {
+      this.getMovies(item)
+    })
   },
 
   methods: {
-    // 获取影院热映
-    getTheaterMovies () {
+
+    getMovies (item) {
       wx.request({
-        url: 'https://api.douban.com/v2/movie/in_theaters?apikey=0df993c66c0c636e29ecbb5344252a4a',
+        url: `https://api.douban.com/v2/movie/${item.param}?apikey=0df993c66c0c636e29ecbb5344252a4a`,
         header: {
           'content-type': 'application/x-www-form-urlencoded'
         },
@@ -122,31 +175,55 @@ export default {
               // 星星(发亮亮)的数量是评分向上取整
               item.starNum = Math.ceil(item.rating.average / 2)
             })
-            this.theatherMovies = subjects
-          }
-        }
-      })
-    },
-    // 获取top250
-    getTop () {
-      wx.request({
-        url: 'http://api.douban.com/v2/movie/top250?apikey=0df993c66c0c636e29ecbb5344252a4a',
-        header: {
-          'content-type': 'application/x-www-form-urlencoded'
-        },
-        success: res => {
-          const { statusCode, data: { subjects } } = res
-          if (statusCode === 200) {
-            console.log(subjects)
-            // 对评分进行处理
-            subjects.forEach(item => {
-              item.starNum = Math.ceil(item.rating.average / 2)
-            })
-            this.top250Movies = subjects
+            item.list = subjects
           }
         }
       })
     }
+
+    // 获取影院热映
+    // getTheaterMovies () {
+    //   wx.request({
+    //     url: 'https://api.douban.com/v2/movie/in_theaters?apikey=0df993c66c0c636e29ecbb5344252a4a',
+    //     header: {
+    //       'content-type': 'application/x-www-form-urlencoded'
+    //     },
+    //     success: res => {
+    //       const { statusCode, data: { subjects } } = res
+    //       if (statusCode === 200) {
+    //         console.log(subjects)
+    //         // 对评分进行处理
+    //         subjects.forEach(item => {
+    //           // 星星(发亮亮)的数量是评分向上取整
+    //           item.starNum = Math.ceil(item.rating.average / 2)
+    //         })
+    //         this.theatherMovies = subjects
+    //       }
+    //     }
+    //   })
+    // }
+
+    // 获取top250
+    // getTop () {
+    //   wx.request({
+    //     url: 'http://api.douban.com/v2/movie/top250?apikey=0df993c66c0c636e29ecbb5344252a4a',
+    //     header: {
+    //       'content-type': 'application/x-www-form-urlencoded'
+    //     },
+    //     success: res => {
+    //       const { statusCode, data: { subjects } } = res
+    //       if (statusCode === 200) {
+    //         console.log(subjects)
+    //         // 对评分进行处理
+    //         subjects.forEach(item => {
+    //           item.starNum = Math.ceil(item.rating.average / 2)
+    //         })
+    //         this.top250Movies = subjects
+    //       }
+    //     }
+    //   })
+    // }
+
   }
 
 }
